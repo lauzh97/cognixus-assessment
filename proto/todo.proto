@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+option go_package = "./todo";
+
+package todo;
+
+service Todo {
+    rpc AddTodo (AddTodoRequest) returns (BasicReply) {}
+    rpc DeleteTodo (UpdateTodoRequest) returns (BasicReply) {}
+    rpc ListTodo (ListTodoRequest) returns (ListTodoReply) {}
+    rpc MarkTodo (UpdateTodoRequest) returns (BasicReply) {}
+}
+
+// requests
+message AddTodoRequest {
+    string userId = 1;
+    string itemTitle = 2;
+    string itemDescription = 3;
+}
+
+message UpdateTodoRequest {
+    string userId = 1;
+    string itemTitle = 2;
+}
+
+message ListTodoRequest {
+    string userId = 1;
+}
+
+// replies
+message BasicReply {
+    string userId = 1;
+}
+
+message TodoItem {
+    int32 count = 1;
+    string itemTitle = 2;
+    string itemDescription = 3;
+    bool completed = 4;
+    string dateCreated = 5;
+    string dateCompleted = 6;
+}
+
+message ListTodoReply {
+    string userId = 1;
+    TodoItem items = 2;
+}
