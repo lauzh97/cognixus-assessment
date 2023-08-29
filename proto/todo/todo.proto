@@ -7,10 +7,29 @@ package pb;
 import "google/api/annotations.proto";
 
 service Todo {
-    rpc AddTodo (AddTodoRequest) returns (BasicReply) {}
-    rpc DeleteTodo (UpdateTodoRequest) returns (BasicReply) {}
-    rpc ListTodo (ListTodoRequest) returns (ListTodoReply) {}
-    rpc MarkTodo (UpdateTodoRequest) returns (BasicReply) {}
+    rpc AddTodo (AddTodoRequest) returns (BasicReply) {
+        option (google.api.http) = {
+            post: "/v1/todo/add"
+            body: "*"
+        };
+    }
+    rpc DeleteTodo (UpdateTodoRequest) returns (BasicReply) {
+        option (google.api.http) = {
+            put: "/v1/todo/delete"
+            body: "*"
+        };
+    }
+    rpc ListTodo (ListTodoRequest) returns (ListTodoReply) {
+        option (google.api.http) = {
+            get: "/v1/todo/list"
+        };
+    }
+    rpc MarkTodo (UpdateTodoRequest) returns (BasicReply) {
+        option (google.api.http) = {
+            put: "/v1/todo/mark"
+            body: "*"
+        };
+    }
     rpc Ping (EmptyRequest) returns (PingReply) {
         option (google.api.http) = {
             get: "/v1/todo/ping"

@@ -1,6 +1,6 @@
 go 1.21.0
-
 protoc 24.2
+postgresql 15.4
 
 go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
 go install google.golang.org/protobuf/cmd/protoc-gen-go@latest

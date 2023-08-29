@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	pb "todo/proto/todo"
+	service "todo/internal/service"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
@@ -17,20 +18,6 @@ const (
 	gatewayPort = ":8090"
 )
 
-type server struct {
-	pb.UnimplementedTodoServer
-}
-
-func NewServer() *server {
-	return &server{}
-}
-
-func (s *server) Ping(context.Context, *pb.EmptyRequest) (*pb.PingReply, error) {
-	return &pb.PingReply{
-		Pong: "pong",
-	}, nil
-}
-
 func startServer() {
 	lis, err := net.Listen("tcp", serverPort)
 	if err != nil {
@@ -38,7 +25,7 @@ func startServer() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterTodoServer(s, &server{})
+	pb.RegisterTodoServer(s, &service.TodoServer{})
 	log.Println("Serving gRPC on http://0.0.0.0" + serverPort)
 	go func() {
 		log.Fatalln(s.Serve(lis))
