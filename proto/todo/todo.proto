@@ -2,13 +2,20 @@ syntax = "proto3";
 
 option go_package = "./todo";
 
-package todo;
+package pb;
+
+import "google/api/annotations.proto";
 
 service Todo {
     rpc AddTodo (AddTodoRequest) returns (BasicReply) {}
     rpc DeleteTodo (UpdateTodoRequest) returns (BasicReply) {}
     rpc ListTodo (ListTodoRequest) returns (ListTodoReply) {}
     rpc MarkTodo (UpdateTodoRequest) returns (BasicReply) {}
+    rpc Ping (EmptyRequest) returns (PingReply) {
+        option (google.api.http) = {
+            get: "/v1/todo/ping"
+        };
+    }
 }
 
 // requests
@@ -27,6 +34,8 @@ message ListTodoRequest {
     string userId = 1;
 }
 
+message EmptyRequest {}
+
 // replies
 message BasicReply {
     string userId = 1;
@@ -44,4 +53,8 @@ message TodoItem {
 message ListTodoReply {
     string userId = 1;
     TodoItem items = 2;
+}
+
+message PingReply {
+    string pong = 1;
 }
