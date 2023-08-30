@@ -1,0 +1,10 @@
+server:
+  grpcPort: ""
+  httpPort: ""
+
+database:
+  host: ""
+  port: 
+  user: ""
+  password: ""
+  name: ""

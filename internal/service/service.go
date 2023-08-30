@@ -10,6 +10,10 @@ type TodoServer struct{
 	pb.UnimplementedTodoServer
 }
 
+func NewTodoServer(ctx context.Context) pb.TodoServer {
+	return &TodoServer{}
+}
+
 func (s *TodoServer) AddTodo(ctx context.Context, in *pb.AddTodoRequest) (*pb.BasicReply, error) {
 	return b.AddTodo(ctx, in)
 }
