@@ -8,3 +8,8 @@ database:
   user: ""
   password: ""
   name: ""
+
+google:
+  clientId: ""
+  clientSecret: ""
+  redirectURL: ""

@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 	service "todo/internal/service"
+	google "todo/internal/google"
 	pb "todo/proto/todo"
 
 	_ "github.com/lib/pq"
@@ -103,9 +104,9 @@ func startGRPC(ctx context.Context) {
 	}()
 }
 
-func startHTTP() {
+func startGateway() {
 	grpcPort := viper.GetString("server.grpcPort")
-	httpPort := viper.GetString("server.httpPort")
+	gatewayPort := viper.GetString("server.gatewayPort")
 
 	conn, err := grpc.DialContext(
 		context.Background(),
@@ -124,12 +125,27 @@ func startHTTP() {
 	}
 
 	gwServer := &http.Server{
-		Addr:    httpPort,
+		Addr:    gatewayPort,
 		Handler: gwmux,
 	}
 
-	log.Println("Serving gRPC-Gateway on http://0.0.0.0" + httpPort)
-	log.Fatalln(gwServer.ListenAndServe())
+	log.Println("Serving gRPC-Gateway on http://0.0.0.0" + gatewayPort)
+	go func() {
+		log.Fatalln(gwServer.ListenAndServe())
+	}()
+}
+
+func startHTTP() {
+	httpPort := viper.GetString("server.httpPort")
+
+	google.InitializeOAuthGoogle()
+
+    http.HandleFunc("/", google.HandleMain)
+    http.HandleFunc("/login", google.HandleGoogleLogin)
+    http.HandleFunc("/auth/google/callback", google.CallBackFromGoogle)
+
+	log.Println("Serving HTTP on http://0.0.0.0" + httpPort)
+    log.Fatal(http.ListenAndServe(":8081", nil))
 }
 
 func main() {
@@ -138,5 +154,6 @@ func main() {
 	startViper()
 	startDB(ctx)
 	startGRPC(ctx)
+	startGateway()
 	startHTTP()
 }
