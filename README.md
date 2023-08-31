@@ -4,17 +4,22 @@ This is a very basic todo-list application. This app allow users to ADD, DELETE,
 ## Basic information
 This app is written in Golang for logic, with Postgresql for CRUD execution. This app also uses GRPC for the interface for API.
 
-## Docker image
-- [App image](https://hub.docker.com/r/lauzh1997/cognixus-assessment-web)
-- [Database image](https://hub.docker.com/r/lauzh1997/cognixus-assessment-db)
-
 ## Before you run
 - Please create a ```config.yaml``` file based on ```config.yaml.example``` in the same directory
 
-## How to run
-As requested in the assessment, simply run command:
+## How to run (docker image)
 ```
-docker compose run
+$ docker network create -d bridge todo
+$ docker pull lauzh1997/cognixus-assessment-web:v1.0
+$ docker pull postgres:15.4
+$ docker run --net todo -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DATABASE=postgres --hostname db --detach postgres:15.4
+$ docker run --net todo -p 8081:8081 -p 8090:8090 --detach lauzh1997/cognixus-assessment-web:v1.0
+```
+
+## How to run (docker compose)
+- In app directory, run command:
+```
+$ docker compose up
 ```
 
 ## How to use
@@ -61,7 +66,7 @@ body: {
 ## How to build
 Simply run command:
 ```
-docker compose build
+$ docker compose build
 ```
 
 ## How to test
