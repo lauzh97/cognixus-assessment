@@ -15,9 +15,15 @@ RUN go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
-RUN apt-get -y install postgresql postgresql-contrib
+# RUN apt-get -y install postgresql postgresql-contrib
 
 COPY . /usr/app
 
 EXPOSE 8081
 EXPOSE 8090
+
+WORKDIR /usr/app/cmd/server
+RUN go build
+
+WORKDIR /usr/app
+CMD [ "./cmd/server/server" ]
