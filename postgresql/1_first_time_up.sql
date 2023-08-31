@@ -10,6 +10,7 @@ create table if not exists main.todolist(
 create table if not exists main.user(
     id varchar(36) primary key,
     email varchar(64),
+    password varchar(64),
     todoListId varchar(36),
     active boolean,
     createdOn timestamp with time zone,

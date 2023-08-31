@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -8,11 +9,20 @@ import (
 	"net/url"
 	"strings"
 
+	html "todo/internal/html"
+
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	html "todo/internal/html"
 )
+
+type UserDetail struct {
+	Id string
+	Email string
+	VerfiedEmail bool
+}
+
+var UserDetails UserDetail
 
 var (
 	oauthConfGl = &oauth2.Config{
@@ -38,12 +48,12 @@ func HandleMain(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(html.IndexPage))
 }
 
-func HandleLogin(w http.ResponseWriter, r *http.Request, oauthConf *oauth2.Config, oauthStateString string) {
+func HandleGLogin(w http.ResponseWriter, r *http.Request, oauthConf *oauth2.Config, oauthStateString string) {
 	URL, err := url.Parse(oauthConf.Endpoint.AuthURL)
 	if err != nil {
 		log.Fatalln("Parse: " + err.Error())
 	}
-	fmt.Println(URL.String())
+	// fmt.Println(URL.String())
 	parameters := url.Values{}
 	parameters.Add("client_id", oauthConf.ClientID)
 	parameters.Add("scope", strings.Join(oauthConf.Scopes, " "))
@@ -52,17 +62,17 @@ func HandleLogin(w http.ResponseWriter, r *http.Request, oauthConf *oauth2.Confi
 	parameters.Add("state", oauthStateString)
 	URL.RawQuery = parameters.Encode()
 	url := URL.String()
-	fmt.Println(url)
+	// fmt.Println(url)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
 func HandleGoogleLogin(w http.ResponseWriter, r *http.Request) {
-	HandleLogin(w, r, oauthConfGl, oauthStateStringGl)
+	HandleGLogin(w, r, oauthConfGl, oauthStateStringGl)
 }
 
 func CallBackFromGoogle(w http.ResponseWriter, r *http.Request) {
 	state := r.FormValue("state")
-	fmt.Println(state)
+	// fmt.Println(state)
 	if state != oauthStateStringGl {
 		fmt.Println("invalid oauth state, expected " + oauthStateStringGl + ", got " + state + "\n")
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
@@ -70,10 +80,10 @@ func CallBackFromGoogle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	code := r.FormValue("code")
-	fmt.Println(code)
+	// fmt.Println(code)
 
 	if code == "" {
-		fmt.Println("Code not found..")
+		// fmt.Println("Code not found..")
 		w.Write([]byte("Code Not Found to provide AccessToken..\n"))
 		reason := r.FormValue("error_reason")
 		if reason == "user_denied" {
@@ -102,10 +112,21 @@ func CallBackFromGoogle(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
+		
+		// fmt.Println("parseResponseBody: " + string(response) + "\n")
+		if err := json.Unmarshal(response, &UserDetails); err != nil {
+			log.Fatalln("Unmarshal: " + err.Error() + "\n")
+			return
+		}
 
-		fmt.Println("parseResponseBody: " + string(response) + "\n")
+		fmt.Println("Logged in as " + UserDetails.Email)
+		http.Redirect(w, r, "/auth/google/authenticated", http.StatusTemporaryRedirect)
 
 		// w.Write([]byte(string(response))) // this thing stores the login user details
-		return
 	}
+}
+
+func HandleAuthenticated(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(html.AuthenticatedPage))
 }

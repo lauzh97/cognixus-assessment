@@ -1,14 +1,12 @@
 package internal
 
-const CallbackPage = `
+const AuthenticatedPage = `
 <html>
 	<head>
 		<title>TodoList</title>
 	</head>
 	<body>
-		<p>
-			Redirecting...
-		</p>
+		<p>You are now authenticated and may close this window.</p>
 	</body>
 </html>
 `
