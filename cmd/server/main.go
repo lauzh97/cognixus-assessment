@@ -11,6 +11,7 @@ import (
 	"strconv"
 	service "todo/internal/service"
 	google "todo/internal/google"
+	data "todo/internal/data"
 	pb "todo/proto/todo"
 
 	_ "github.com/lib/pq"
@@ -20,8 +21,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
-
-var DB *sql.DB
 
 // to read yaml files
 func startViper() {
@@ -36,7 +35,7 @@ func startViper() {
 
 func CheckDatabase(ctx context.Context) error {
 	query := `SELECT schema_name FROM information_schema.schemata WHERE schema_name='main'`
-	row := DB.QueryRow(query)
+	row := data.DB.QueryRow(query)
 
 	var result string 
 	err := row.Scan(&result);
@@ -49,7 +48,7 @@ func CheckDatabase(ctx context.Context) error {
 				return err
 			}
 			query := string(sqlScript)
-			if _, err := DB.Exec(query); err != nil {
+			if _, err := data.DB.Exec(query); err != nil {
 				return err
 			}
 			fmt.Println("Done")
@@ -73,13 +72,10 @@ func startDB(ctx context.Context)  {
 	)
          
     // open database
-    DB, err = sql.Open("postgres", psqlconn)
+    data.DB, err = sql.Open("postgres", psqlconn)
     if err != nil {
 		log.Fatalln("Failed to open database:", err)
 	}
-     
-    // close database
-    defer DB.Close()
 
 	if err = CheckDatabase(ctx); err != nil {
 		log.Fatalln("Failed to check database:", err)

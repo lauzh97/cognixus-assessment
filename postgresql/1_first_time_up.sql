@@ -2,30 +2,19 @@ create schema main
 
 create table if not exists main.todolist(
     id varchar(36) primary key,
-    active boolean,
+    active boolean default true,
     createdOn timestamp with time zone,
-    updatedOn timestamp with time zone
+    updatedOn timestamp with time zone default current_timestamp
 );
 
 create table if not exists main.user(
     id varchar(36) primary key,
     email varchar(64),
-    password varchar(64),
     todoListId varchar(36),
-    active boolean,
+    active boolean default true,
     createdOn timestamp with time zone,
-    updatedOn timestamp with time zone,
+    updatedOn timestamp with time zone default current_timestamp,
     constraint fk_todoListId_user foreign key(todoListId) references main.todolist(id)
-);
-
-create table if not exists main.session(
-    id varchar(36) primary key,
-    userId varchar(36),
-    active boolean,
-    createdOn timestamp with time zone,
-    expriedOn timestamp with time zone,
-    updatedOn timestamp with time zone,
-    constraint fk_userId foreign key(userId) references main.user(id)
 );
 
 create table if not exists main.item(
@@ -34,8 +23,8 @@ create table if not exists main.item(
     name varchar(64),
     description varchar(128),
     markDone boolean,
-    active boolean,
+    active boolean default true,
     createdOn timestamp with time zone,
-    updatedOn timestamp with time zone,
+    updatedOn timestamp with time zone default current_timestamp,
     constraint fk_todoListId_item foreign key(todoListId) references main.todolist(id)
 );
