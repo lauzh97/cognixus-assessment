@@ -7,10 +7,29 @@ package pb;
 import "google/api/annotations.proto";
 
 service Todo {
-    rpc AddTodo (AddTodoRequest) returns (BasicReply) {}
-    rpc DeleteTodo (UpdateTodoRequest) returns (BasicReply) {}
-    rpc ListTodo (ListTodoRequest) returns (ListTodoReply) {}
-    rpc MarkTodo (UpdateTodoRequest) returns (BasicReply) {}
+    rpc AddTodo (AddTodoRequest) returns (EmptyReply) {
+        option (google.api.http) = {
+            post: "/v1/todo/add"
+            body: "*"
+        };
+    }
+    rpc DeleteTodo (UpdateTodoRequest) returns (EmptyReply) {
+        option (google.api.http) = {
+            put: "/v1/todo/delete"
+            body: "*"
+        };
+    }
+    rpc ListTodo (EmptyRequest) returns (ListTodoReply) {
+        option (google.api.http) = {
+            get: "/v1/todo/list"
+        };
+    }
+    rpc MarkTodo (UpdateTodoRequest) returns (EmptyReply) {
+        option (google.api.http) = {
+            put: "/v1/todo/mark"
+            body: "*"
+        };
+    }
     rpc Ping (EmptyRequest) returns (PingReply) {
         option (google.api.http) = {
             get: "/v1/todo/ping"
@@ -20,39 +39,28 @@ service Todo {
 
 // requests
 message AddTodoRequest {
-    string userId = 1;
-    string itemTitle = 2;
-    string itemDescription = 3;
+    string itemName = 1;
+    string itemDescription = 2;
 }
 
 message UpdateTodoRequest {
-    string userId = 1;
-    string itemTitle = 2;
-}
-
-message ListTodoRequest {
-    string userId = 1;
+    string itemName = 1;
 }
 
 message EmptyRequest {}
 
 // replies
-message BasicReply {
-    string userId = 1;
-}
+message EmptyReply {}
 
 message TodoItem {
-    int32 count = 1;
-    string itemTitle = 2;
-    string itemDescription = 3;
-    bool completed = 4;
-    string dateCreated = 5;
-    string dateCompleted = 6;
+    string itemName = 1;
+    string itemDescription = 2;
+    bool done = 3;
 }
 
 message ListTodoReply {
-    string userId = 1;
-    TodoItem items = 2;
+    int32 count = 1;
+    repeated TodoItem items = 2;
 }
 
 message PingReply {
