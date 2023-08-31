@@ -99,20 +99,9 @@ func local_request_Todo_DeleteTodo_0(ctx context.Context, marshaler runtime.Mars
 
 }
 
-var (
-	filter_Todo_ListTodo_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
-
 func request_Todo_ListTodo_0(ctx context.Context, marshaler runtime.Marshaler, client TodoClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListTodoRequest
+	var protoReq EmptyRequest
 	var metadata runtime.ServerMetadata
-
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Todo_ListTodo_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 
 	msg, err := client.ListTodo(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -120,15 +109,8 @@ func request_Todo_ListTodo_0(ctx context.Context, marshaler runtime.Marshaler, c
 }
 
 func local_request_Todo_ListTodo_0(ctx context.Context, marshaler runtime.Marshaler, server TodoServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListTodoRequest
+	var protoReq EmptyRequest
 	var metadata runtime.ServerMetadata
-
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Todo_ListTodo_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 
 	msg, err := server.ListTodo(ctx, &protoReq)
 	return msg, metadata, err

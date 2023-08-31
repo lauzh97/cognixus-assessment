@@ -25,9 +25,9 @@ type TodoList struct {
 type Item struct {
 	Id uuid.UUID
 	TodoListId uuid.UUID
-	Name string
-	Description string
-	MarkDone bool
+	Name string	`json:"itemName"`
+	Description string	`json:"itemDescription"`
+	MarkDone bool	`json:"done"`
 	Active bool
 	CreatedOn time.Time
 	UpdatedOn time.Time

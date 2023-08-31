@@ -30,10 +30,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TodoClient interface {
-	AddTodo(ctx context.Context, in *AddTodoRequest, opts ...grpc.CallOption) (*BasicReply, error)
-	DeleteTodo(ctx context.Context, in *UpdateTodoRequest, opts ...grpc.CallOption) (*BasicReply, error)
-	ListTodo(ctx context.Context, in *ListTodoRequest, opts ...grpc.CallOption) (*ListTodoReply, error)
-	MarkTodo(ctx context.Context, in *UpdateTodoRequest, opts ...grpc.CallOption) (*BasicReply, error)
+	AddTodo(ctx context.Context, in *AddTodoRequest, opts ...grpc.CallOption) (*EmptyReply, error)
+	DeleteTodo(ctx context.Context, in *UpdateTodoRequest, opts ...grpc.CallOption) (*EmptyReply, error)
+	ListTodo(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*ListTodoReply, error)
+	MarkTodo(ctx context.Context, in *UpdateTodoRequest, opts ...grpc.CallOption) (*EmptyReply, error)
 	Ping(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*PingReply, error)
 }
 
@@ -45,8 +45,8 @@ func NewTodoClient(cc grpc.ClientConnInterface) TodoClient {
 	return &todoClient{cc}
 }
 
-func (c *todoClient) AddTodo(ctx context.Context, in *AddTodoRequest, opts ...grpc.CallOption) (*BasicReply, error) {
-	out := new(BasicReply)
+func (c *todoClient) AddTodo(ctx context.Context, in *AddTodoRequest, opts ...grpc.CallOption) (*EmptyReply, error) {
+	out := new(EmptyReply)
 	err := c.cc.Invoke(ctx, Todo_AddTodo_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -54,8 +54,8 @@ func (c *todoClient) AddTodo(ctx context.Context, in *AddTodoRequest, opts ...gr
 	return out, nil
 }
 
-func (c *todoClient) DeleteTodo(ctx context.Context, in *UpdateTodoRequest, opts ...grpc.CallOption) (*BasicReply, error) {
-	out := new(BasicReply)
+func (c *todoClient) DeleteTodo(ctx context.Context, in *UpdateTodoRequest, opts ...grpc.CallOption) (*EmptyReply, error) {
+	out := new(EmptyReply)
 	err := c.cc.Invoke(ctx, Todo_DeleteTodo_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (c *todoClient) DeleteTodo(ctx context.Context, in *UpdateTodoRequest, opts
 	return out, nil
 }
 
-func (c *todoClient) ListTodo(ctx context.Context, in *ListTodoRequest, opts ...grpc.CallOption) (*ListTodoReply, error) {
+func (c *todoClient) ListTodo(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*ListTodoReply, error) {
 	out := new(ListTodoReply)
 	err := c.cc.Invoke(ctx, Todo_ListTodo_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -72,8 +72,8 @@ func (c *todoClient) ListTodo(ctx context.Context, in *ListTodoRequest, opts ...
 	return out, nil
 }
 
-func (c *todoClient) MarkTodo(ctx context.Context, in *UpdateTodoRequest, opts ...grpc.CallOption) (*BasicReply, error) {
-	out := new(BasicReply)
+func (c *todoClient) MarkTodo(ctx context.Context, in *UpdateTodoRequest, opts ...grpc.CallOption) (*EmptyReply, error) {
+	out := new(EmptyReply)
 	err := c.cc.Invoke(ctx, Todo_MarkTodo_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -94,10 +94,10 @@ func (c *todoClient) Ping(ctx context.Context, in *EmptyRequest, opts ...grpc.Ca
 // All implementations must embed UnimplementedTodoServer
 // for forward compatibility
 type TodoServer interface {
-	AddTodo(context.Context, *AddTodoRequest) (*BasicReply, error)
-	DeleteTodo(context.Context, *UpdateTodoRequest) (*BasicReply, error)
-	ListTodo(context.Context, *ListTodoRequest) (*ListTodoReply, error)
-	MarkTodo(context.Context, *UpdateTodoRequest) (*BasicReply, error)
+	AddTodo(context.Context, *AddTodoRequest) (*EmptyReply, error)
+	DeleteTodo(context.Context, *UpdateTodoRequest) (*EmptyReply, error)
+	ListTodo(context.Context, *EmptyRequest) (*ListTodoReply, error)
+	MarkTodo(context.Context, *UpdateTodoRequest) (*EmptyReply, error)
 	Ping(context.Context, *EmptyRequest) (*PingReply, error)
 	mustEmbedUnimplementedTodoServer()
 }
@@ -106,16 +106,16 @@ type TodoServer interface {
 type UnimplementedTodoServer struct {
 }
 
-func (UnimplementedTodoServer) AddTodo(context.Context, *AddTodoRequest) (*BasicReply, error) {
+func (UnimplementedTodoServer) AddTodo(context.Context, *AddTodoRequest) (*EmptyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddTodo not implemented")
 }
-func (UnimplementedTodoServer) DeleteTodo(context.Context, *UpdateTodoRequest) (*BasicReply, error) {
+func (UnimplementedTodoServer) DeleteTodo(context.Context, *UpdateTodoRequest) (*EmptyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTodo not implemented")
 }
-func (UnimplementedTodoServer) ListTodo(context.Context, *ListTodoRequest) (*ListTodoReply, error) {
+func (UnimplementedTodoServer) ListTodo(context.Context, *EmptyRequest) (*ListTodoReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTodo not implemented")
 }
-func (UnimplementedTodoServer) MarkTodo(context.Context, *UpdateTodoRequest) (*BasicReply, error) {
+func (UnimplementedTodoServer) MarkTodo(context.Context, *UpdateTodoRequest) (*EmptyReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MarkTodo not implemented")
 }
 func (UnimplementedTodoServer) Ping(context.Context, *EmptyRequest) (*PingReply, error) {
@@ -171,7 +171,7 @@ func _Todo_DeleteTodo_Handler(srv interface{}, ctx context.Context, dec func(int
 }
 
 func _Todo_ListTodo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListTodoRequest)
+	in := new(EmptyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -183,7 +183,7 @@ func _Todo_ListTodo_Handler(srv interface{}, ctx context.Context, dec func(inter
 		FullMethod: Todo_ListTodo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TodoServer).ListTodo(ctx, req.(*ListTodoRequest))
+		return srv.(TodoServer).ListTodo(ctx, req.(*EmptyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

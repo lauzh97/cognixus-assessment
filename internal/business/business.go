@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	data "todo/internal/data"
 	pb "todo/proto/todo"
@@ -10,20 +11,126 @@ import (
 	"github.com/google/uuid"
 )
 
-func AddTodo(ctx context.Context, in *pb.AddTodoRequest) (*pb.BasicReply, error) {
-	return nil, nil
+// Adds a new record into items table, related to the logged in user
+func AddTodo(ctx context.Context, email string, in *pb.AddTodoRequest) (*pb.EmptyReply, error) {
+	user, err := data.GetUser(ctx, email)
+	if err != nil {
+		return &pb.EmptyReply{}, err
+	}
+	
+	// get todoListId
+	todoListId, err := data.GetTodoListIdByUserId(ctx, user.Id)
+	if err != nil {
+		return &pb.EmptyReply{}, err
+	}
+
+	// add item
+	_, err = data.AddItem(ctx, user.Id, todoListId, in.ItemName, in.ItemDescription)
+	if err != nil {
+		return &pb.EmptyReply{}, err
+	}
+
+	return &pb.EmptyReply{}, nil
 }
 
-func DeleteTodo(ctx context.Context, in *pb.UpdateTodoRequest) (*pb.BasicReply, error) {
-	return nil, nil
+// Soft delete an existing record into items table, related to the logged in user
+func DeleteTodo(ctx context.Context, email string, in *pb.UpdateTodoRequest) (*pb.EmptyReply, error) {
+	user, err := data.GetUser(ctx, email)
+	if err != nil {
+		return &pb.EmptyReply{}, err
+	}
+	
+	// get todoListId
+	todoListId, err := data.GetTodoListIdByUserId(ctx, user.Id)
+	if err != nil {
+		return &pb.EmptyReply{}, err
+	}
+
+	// get item
+	item, err := data.GetItemByItemName(ctx, todoListId, in.ItemName)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return &pb.EmptyReply{}, errors.New("item do not exist")
+		}
+		return &pb.EmptyReply{}, err
+	}
+
+	// only update "active" column
+	item.Active = false
+
+	// update item (soft delete)
+	_, err = data.UpdateItem(ctx, item.Id.String(), item)
+	if err != nil {
+		return &pb.EmptyReply{}, err
+	}
+
+	return &pb.EmptyReply{}, nil
 }
 
-func ListTodo(ctx context.Context, in *pb.ListTodoRequest) (*pb.ListTodoReply, error) {
-	return nil, nil
+func ListTodo(ctx context.Context, email string) (*pb.ListTodoReply, error) {
+	user, err := data.GetUser(ctx, email)
+	if err != nil {
+		return &pb.ListTodoReply{}, err
+	}
+	
+	// get todoListId
+	todoListId, err := data.GetTodoListIdByUserId(ctx, user.Id)
+	if err != nil {
+		return &pb.ListTodoReply{}, err
+	}
+
+	items, err := data.ListItem(ctx, todoListId)
+	if err != nil {
+		return &pb.ListTodoReply{}, err
+	}
+
+	// format into json for reply
+	var res pb.ListTodoReply
+	res.Count = int32(len(items))
+	j, err := json.Marshal(items)
+	if err != nil {
+		return &pb.ListTodoReply{}, err
+	}
+	err = json.Unmarshal(j, &res.Items)
+	if err != nil {
+		return &pb.ListTodoReply{}, err
+	}
+	
+	return &res, nil
 }
 
-func MarkTodo(ctx context.Context, in *pb.UpdateTodoRequest) (*pb.BasicReply, error) {
-	return nil, nil
+func MarkTodo(ctx context.Context, email string, in *pb.UpdateTodoRequest) (*pb.EmptyReply, error) {
+	user, err := data.GetUser(ctx, email)
+	if err != nil {
+		return &pb.EmptyReply{}, err
+	}
+	
+	// get todoListId
+	todoListId, err := data.GetTodoListIdByUserId(ctx, user.Id)
+	if err != nil {
+		return &pb.EmptyReply{}, err
+	}
+
+	// get item
+	item, err := data.GetItemByItemName(ctx, todoListId, in.ItemName)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return &pb.EmptyReply{}, errors.New("item do not exist")
+		}
+		return &pb.EmptyReply{}, err
+	}
+
+	// update value
+	item.MarkDone = true
+	item.Active = true
+
+	// update item
+	_, err = data.UpdateItem(ctx, item.Id.String(), item)
+	if err != nil {
+		return &pb.EmptyReply{}, err
+	}
+
+	return &pb.EmptyReply{}, nil
 }
 
 func Ping(ctx context.Context, in *pb.EmptyRequest) (*pb.PingReply, error) {

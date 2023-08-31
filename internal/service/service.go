@@ -13,30 +13,37 @@ type TodoServer struct{
 	pb.UnimplementedTodoServer
 }
 
+var email string
+
 func NewTodoServer(ctx context.Context) pb.TodoServer {
 	return &TodoServer{}
 }
 
-func (s *TodoServer) AddTodo(ctx context.Context, in *pb.AddTodoRequest) (*pb.BasicReply, error) {
+// Adds a new item into todolist
+func (s *TodoServer) AddTodo(ctx context.Context, in *pb.AddTodoRequest) (*pb.EmptyReply, error) {
 	if err := s.CheckLogin(ctx); err != nil {return nil, err}
-	return b.AddTodo(ctx, in)
+	return b.AddTodo(ctx, email, in)
 }
 
-func (s *TodoServer) DeleteTodo(ctx context.Context, in *pb.UpdateTodoRequest) (*pb.BasicReply, error) {
+// Soft deletes an item in the todolist
+func (s *TodoServer) DeleteTodo(ctx context.Context, in *pb.UpdateTodoRequest) (*pb.EmptyReply, error) {
 	if err := s.CheckLogin(ctx); err != nil {return nil, err}
-	return b.DeleteTodo(ctx, in)
+	return b.DeleteTodo(ctx, email, in)
 }
 
-func (s *TodoServer) ListTodo(ctx context.Context, in *pb.ListTodoRequest) (*pb.ListTodoReply, error) {
+// Lists all items of the todolist
+func (s *TodoServer) ListTodo(ctx context.Context, in *pb.EmptyRequest) (*pb.ListTodoReply, error) {
 	if err := s.CheckLogin(ctx); err != nil {return nil, err}
-	return b.ListTodo(ctx, in)
+	return b.ListTodo(ctx, email)
 }
 
-func (s *TodoServer) MarkTodo(ctx context.Context, in *pb.UpdateTodoRequest) (*pb.BasicReply, error) {
+// Mark an item as true or completed
+func (s *TodoServer) MarkTodo(ctx context.Context, in *pb.UpdateTodoRequest) (*pb.EmptyReply, error) {
 	if err := s.CheckLogin(ctx); err != nil {return nil, err}
-	return b.MarkTodo(ctx, in)
+	return b.MarkTodo(ctx, email, in)
 }
 
+// Pong!
 func (s *TodoServer) Ping(ctx context.Context, in *pb.EmptyRequest) (*pb.PingReply, error) {
 	if err := s.CheckLogin(ctx); err != nil {return nil, err}
 	return b.Ping(ctx, in)
@@ -45,7 +52,7 @@ func (s *TodoServer) Ping(ctx context.Context, in *pb.EmptyRequest) (*pb.PingRep
 // Checks if user is logged in using Gmail.
 // If user is a new user, then create a new user automatically.
 func (s *TodoServer) CheckLogin(ctx context.Context) error {
-	email := g.UserDetails.Email
+	email = g.UserDetails.Email
 	// user is not logged in
 	if email == "" {
 		return errors.New("user not logged in. Please log in using http://localhost:8081")
