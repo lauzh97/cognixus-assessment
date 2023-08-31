@@ -9,9 +9,10 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	service "todo/internal/service"
-	google "todo/internal/google"
+	"time"
 	data "todo/internal/data"
+	google "todo/internal/google"
+	service "todo/internal/service"
 	pb "todo/proto/todo"
 
 	_ "github.com/lib/pq"
@@ -77,8 +78,11 @@ func startDB(ctx context.Context)  {
 		log.Fatalln("Failed to open database:", err)
 	}
 
-	if err = CheckDatabase(ctx); err != nil {
-		log.Fatalln("Failed to check database:", err)
+	err = CheckDatabase(ctx)
+	for err != nil {
+		time.Sleep(2*time.Second)
+		fmt.Println(err.Error() + " retrying connection to database...")
+		err = CheckDatabase(ctx)
 	}
 	
 	fmt.Println("Serving database on port " + strconv.Itoa(viper.GetInt("database.port")))

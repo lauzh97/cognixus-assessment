@@ -2,6 +2,7 @@ server:
   grpcPort: ""
   httpPort: ""
 
+# host must be the same as hostname of the db service in compose.yaml
 database:
   host: ""
   port: 
@@ -9,6 +10,8 @@ database:
   password: ""
   name: ""
 
+# can be created in https://console.cloud.google.com/apis/credentials?project=gmail-login-golang&pli=1
+# detailed tutorial can be found in https://medium.com/@bnprashanth256/oauth2-with-google-account-gmail-in-go-golang-1372c237d25e
 google:
   clientId: ""
   clientSecret: ""
