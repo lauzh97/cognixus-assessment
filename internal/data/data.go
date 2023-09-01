@@ -10,7 +10,7 @@ import (
 
 var DB *sql.DB
 
-func AddItem(ctx context.Context, userId uuid.UUID, todoListId uuid.UUID, itemName string, itemDescription string) (uuid.UUID, error) {
+var AddItem = func(ctx context.Context, userId uuid.UUID, todoListId uuid.UUID, itemName string, itemDescription string) (uuid.UUID, error) {
 	id := uuid.New()
 
 	query := `INSERT INTO main.item(id, todoListId, name, description) VALUES ($1,$2,$3,$4);`
@@ -22,7 +22,7 @@ func AddItem(ctx context.Context, userId uuid.UUID, todoListId uuid.UUID, itemNa
 	return id, nil
 }
 
-func UpdateItem(ctx context.Context, itemId string, item Item) (bool, error) {
+var UpdateItem = func(ctx context.Context, itemId string, item Item) (bool, error) {
 	query := `UPDATE main.item SET name=$1, description=$2, markDone=$3, active=$4, updatedOn=$5 WHERE id=$6;`
 	_, err := DB.Exec(query, item.Name, item.Description, item.MarkDone, item.Active, time.Now(), item.Id)
 	if err != nil {
@@ -32,7 +32,7 @@ func UpdateItem(ctx context.Context, itemId string, item Item) (bool, error) {
 	return true, nil
 }
 
-func GetItemByItemName(ctx context.Context, todoListId uuid.UUID, itemName string) (Item, error) {
+var GetItemByItemName = func(ctx context.Context, todoListId uuid.UUID, itemName string) (Item, error) {
 	query := `SELECT id, todoListId, name, description, markDone FROM main.item WHERE todoListId=$1 AND name=$2 AND active=true`
 	row := DB.QueryRow(query, todoListId, itemName)
 
@@ -51,7 +51,7 @@ func GetItemByItemName(ctx context.Context, todoListId uuid.UUID, itemName strin
 	return item, nil
 }
 
-func ListItem(ctx context.Context, todoListId uuid.UUID) ([]Item, error) {
+var ListItem = func(ctx context.Context, todoListId uuid.UUID) ([]Item, error) {
 	query := `SELECT name, description, markDone FROM main.item WHERE todoListId=$1 AND active=true`
 	rows, err := DB.Query(query, todoListId)
 	if err != nil {
@@ -72,7 +72,7 @@ func ListItem(ctx context.Context, todoListId uuid.UUID) ([]Item, error) {
 	return items, nil
 }
 
-func GetTodoListIdByUserId(ctx context.Context, userId uuid.UUID) (uuid.UUID, error) {
+var GetTodoListIdByUserId = func(ctx context.Context, userId uuid.UUID) (uuid.UUID, error) {
 	query := `SELECT todoListId FROM main.user WHERE id=$1`
 	row := DB.QueryRow(query, userId)
 
@@ -85,7 +85,7 @@ func GetTodoListIdByUserId(ctx context.Context, userId uuid.UUID) (uuid.UUID, er
 	return todoListId, nil
 }
 
-func AddTodoList(ctx context.Context) (uuid.UUID, error) {
+var AddTodoList = func(ctx context.Context) (uuid.UUID, error) {
 	id := uuid.New()
 
 	query := `INSERT INTO main.todoList(id) VALUES($1);`
@@ -97,7 +97,7 @@ func AddTodoList(ctx context.Context) (uuid.UUID, error) {
 	return id, nil
 }
 
-func AddUser(ctx context.Context, email string, todoListId uuid.UUID) (uuid.UUID, error) {
+var AddUser = func(ctx context.Context, email string, todoListId uuid.UUID) (uuid.UUID, error) {
 	id := uuid.New()
 
 	query := `INSERT INTO main.user(id, email, todoListId) VALUES($1,$2,$3);`
@@ -109,17 +109,17 @@ func AddUser(ctx context.Context, email string, todoListId uuid.UUID) (uuid.UUID
 	return id, nil
 }
 
-func GetUser(ctx context.Context, email string) (User, error) {
+var GetUser = func(ctx context.Context, email string) (User, error) {
 	query := `SELECT * FROM main.user WHERE email = $1;`
 	row := DB.QueryRow(query, email)
 
 	var user User
 	err := row.Scan(
-		&user.Id, 
-		&user.Email, 
-		&user.TodoListId, 
-		&user.Active, 
-		&user.CreatedOn, 
+		&user.Id,
+		&user.Email,
+		&user.TodoListId,
+		&user.Active,
+		&user.CreatedOn,
 		&user.UpdatedOn,
 	)
 	if err != nil {

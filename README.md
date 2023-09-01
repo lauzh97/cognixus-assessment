@@ -70,7 +70,10 @@ $ docker compose build
 ```
 
 ## How to test
-There are no tests available currently.
+Test file is available in internal/business folder, run command:
+```
+go test ./internal/business
+```
 
 ## Version
 - go 1.21.0
