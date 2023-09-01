@@ -13,11 +13,25 @@ import (
 
 // Adds a new record into items table, related to the logged in user
 func AddTodo(ctx context.Context, email string, in *pb.AddTodoRequest) (*pb.EmptyReply, error) {
+	// validation
+	if email == "" {
+		return &pb.EmptyReply{}, errors.New("missing email")
+	}
+
+	if in.ItemName == "" {
+		return &pb.EmptyReply{}, errors.New("missing itemName")
+	}
+
+	if in.ItemDescription == "" {
+		return &pb.EmptyReply{}, errors.New("missing itemDescription")
+	}
+	// end validation
+
 	user, err := data.GetUser(ctx, email)
 	if err != nil {
 		return &pb.EmptyReply{}, err
 	}
-	
+
 	// get todoListId
 	todoListId, err := data.GetTodoListIdByUserId(ctx, user.Id)
 	if err != nil {
@@ -35,11 +49,21 @@ func AddTodo(ctx context.Context, email string, in *pb.AddTodoRequest) (*pb.Empt
 
 // Soft delete an existing record into items table, related to the logged in user
 func DeleteTodo(ctx context.Context, email string, in *pb.UpdateTodoRequest) (*pb.EmptyReply, error) {
+	// validation
+	if email == "" {
+		return &pb.EmptyReply{}, errors.New("missing email")
+	}
+
+	if in.ItemName == "" {
+		return &pb.EmptyReply{}, errors.New("missing itemName")
+	}
+	// end validation
+
 	user, err := data.GetUser(ctx, email)
 	if err != nil {
 		return &pb.EmptyReply{}, err
 	}
-	
+
 	// get todoListId
 	todoListId, err := data.GetTodoListIdByUserId(ctx, user.Id)
 	if err != nil {
@@ -68,11 +92,17 @@ func DeleteTodo(ctx context.Context, email string, in *pb.UpdateTodoRequest) (*p
 }
 
 func ListTodo(ctx context.Context, email string) (*pb.ListTodoReply, error) {
+	// validation
+	if email == "" {
+		return &pb.ListTodoReply{}, errors.New("missing email")
+	}
+	// end validation
+
 	user, err := data.GetUser(ctx, email)
 	if err != nil {
 		return &pb.ListTodoReply{}, err
 	}
-	
+
 	// get todoListId
 	todoListId, err := data.GetTodoListIdByUserId(ctx, user.Id)
 	if err != nil {
@@ -95,16 +125,26 @@ func ListTodo(ctx context.Context, email string) (*pb.ListTodoReply, error) {
 	if err != nil {
 		return &pb.ListTodoReply{}, err
 	}
-	
+
 	return &res, nil
 }
 
 func MarkTodo(ctx context.Context, email string, in *pb.UpdateTodoRequest) (*pb.EmptyReply, error) {
+	// validation
+	if email == "" {
+		return &pb.EmptyReply{}, errors.New("missing email")
+	}
+
+	if in.ItemName == "" {
+		return &pb.EmptyReply{}, errors.New("missing itemName")
+	}
+	// end validation
+
 	user, err := data.GetUser(ctx, email)
 	if err != nil {
 		return &pb.EmptyReply{}, err
 	}
-	
+
 	// get todoListId
 	todoListId, err := data.GetTodoListIdByUserId(ctx, user.Id)
 	if err != nil {
@@ -139,6 +179,12 @@ func Ping(ctx context.Context, in *pb.EmptyRequest) (*pb.PingReply, error) {
 
 // Adds a new record into main.user table
 func AddNewUser(ctx context.Context, email string) (uuid.UUID, error) {
+	// validation
+	if email == "" {
+		return uuid.Nil, errors.New("missing email")
+	}
+	// end validation
+
 	// add a new todolist for the new user
 	todoListId, err := data.AddTodoList(ctx)
 	if err != nil {
@@ -156,6 +202,12 @@ func AddNewUser(ctx context.Context, email string) (uuid.UUID, error) {
 
 // Checks if user exists in the main.user table.
 func CheckUserExists(ctx context.Context, email string) (bool, error) {
+	// validation
+	if email == "" {
+		return false, errors.New("missing email")
+	}
+	// end validation
+
 	_, err := data.GetUser(ctx, email)
 	if err != nil && err != sql.ErrNoRows {
 		return false, errors.New("GetUser failed: " + err.Error())
